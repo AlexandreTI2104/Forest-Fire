@@ -5,11 +5,14 @@ import numpy as np
 from datetime import datetime
 
 # Início do Design do Experimento.
+params = {"width": 20, "height": 20, "density": 150}
 
-params = {"N": 100, "width": 10, "height": 10, "D": np.arange(0, 1, 0.2)}
-
+# Define a quantidade de experimentos que serão repetidos para cada configuração de valores para as variáveis independentes e de controle. 
 experiments_per_parameter_configuration = 100
-max_steps_per_simulation = 300
+
+# Define a quantidade de passos suficientes para que a simulação alcance um estado de equilíbrio.
+max_steps_per_simulation = 100
+
 
 # Executa as simulações.
 results = batch_run(
@@ -28,4 +31,4 @@ now = str(datetime.now()).replace(":", "-").replace(" ", "-")
 
 file_name_suffix = ("_iter_" + str(experiments_per_parameter_configuration) + "_steps_" + str(max_steps_per_simulation) + "_" + now)
 
-results_df.to_csv("Forest_fire_model_data" + file_name_suffix + ".csv")
+results_df.to_csv("Forest-Fire" + file_name_suffix + ".csv")

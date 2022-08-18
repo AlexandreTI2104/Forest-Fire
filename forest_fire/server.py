@@ -28,15 +28,16 @@ pie_chart = PieChartModule(
     [{"Label": label, "Color": color} for (label, color) in COLORS.items()]
 )
 
-wildfire_chart = ChartModule(
-    [{"Label": "Wildfire", "Color": "#FF0000"}]
+velocidade_do_alastramento_fogo_chart = ChartModule(
+    [{"Label": "Velocidade do Alastramento do Fogo", "Color": "#FF0000"}]
 )
+
 model_params = {
     "height": UserSettableParameter("slider","Largura da Floresta", 100, 5, 100, 5),
     "width": UserSettableParameter("slider","Profundidade da Floresta", 100, 5, 100, 5),
-    "density": UserSettableParameter("slider","Tree density", 0.65, 0.01, 1.0, 0.01),
-
+    "density": UserSettableParameter("slider","Densidade das Árvores", 0.65, 0.01, 1.0, 0.01),
+    
 }
 server = ModularServer(
-    ForestFire, [canvas_element, tree_chart, pie_chart, wildfire_chart], "Forest Fire", model_params
+    ForestFire, [canvas_element, tree_chart, pie_chart, velocidade_do_alastramento_fogo_chart], "Forest Fire", model_params
 )
