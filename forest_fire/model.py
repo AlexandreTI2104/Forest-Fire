@@ -4,23 +4,17 @@ from mesa.datacollection import DataCollector
 from mesa.time import RandomActivation
 from mesa.space import Grid
 from .agent import TreeCell
-import random, mesa
+import mesa
 
-
-def max_wildfire(model):
-    wildfire = 0
-
-    for i in range(1, 6):
-        wildfire = random.randint(1, 50)
-    # um algoritmo que gera um valor para o incêndio máximo presente no modelo
-    return wildfire
 
 class ForestFire(Model):
     """
     Simple Forest Fire model.
     """
 
-    def __init__(self, N = 100, width=100, height=100, density=0.65, D = 0):
+    last_alastramento_fogo = 0
+    # Variável Independente: Largura da Floresta e Profundidade da Floresta.
+    def __init__(self, width=100, height=100, density=0.65, largura_floresta = 100, profundidade_floresta = 100):
         """
         Create a new forest fire model.
         Args:
@@ -28,30 +22,23 @@ class ForestFire(Model):
             density: What fraction of grid cells have a tree in them.
         """
         # Set up model objects
-        self.num_agents = N
-        self.donation_probability = D
+        # Variável Dependente: Fine, On Fire, Burned Out e Velocidade do Alastramento do Fogo.
         self.schedule = RandomActivation(self)
-        #self.grid = Grid(width, height, torus=False)
+        self.densidade = density
+        self.largura_floresta = largura_floresta
+        self.profundidade_floresta = profundidade_floresta
         self.grid = mesa.space.MultiGrid(width, height, True)
-        self.donation_probability = D
 
         self.datacollector = DataCollector(
             {
                 "Fine": lambda m: self.count_type(m, "Fine"),
                 "On Fire": lambda m: self.count_type(m, "On Fire"),
                 "Burned Out": lambda m: self.count_type(m, "Burned Out"),
-                "Wildfire": lambda m: max_wildfire(m),
+                "Velocidade do Alastramento do Fogo": lambda m: self.max_alastramento(m),
+                "Largura da Floresta": lambda m: largura_floresta,
+                "Profundidade da Floresta": lambda m: profundidade_floresta
             }
         )
-
-        # Create agents
-        for i in range(self.num_agents):
-            a = TreeCell(i, self)
-            self.schedule.add(a)
-            # Add the agent to a random grid cell
-            x = self.random.randrange(self.grid.width)
-            y = self.random.randrange(self.grid.height)
-            self.grid.place_agent(a, (x, y))
 
         # Place a tree in each cell with Prob = density
         for (contents, x, y) in self.grid.coord_iter():
@@ -89,3 +76,13 @@ class ForestFire(Model):
             if tree.condition == tree_condition:
                 count += 1
         return count
+    
+    @staticmethod
+    def max_alastramento(model):
+        # Calcula o espaço percorrido e diminui pelo número de passos a respeito do alastramento do fogo anterior.
+        alastramento_fogo = [tree for tree in model.schedule.agents if tree.condition == 'Burned Out']
+        alastramento_fogo = len(alastramento_fogo)
+        alastramento_fogo -= model.last_alastramento_fogo
+        model.last_alastramento_fogo += alastramento_fogo
+
+        return alastramento_fogo
